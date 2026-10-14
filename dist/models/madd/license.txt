@@ -1,0 +1,11 @@
+Model Information:
+* title:	Floral Island Casual
+* source:	https://sketchfab.com/3d-models/floral-island-casual-51b345a5ab5843b3b69bfc45056797f7
+* author:	restore50 (https://sketchfab.com/restore50)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Floral Island Casual" (https://sketchfab.com/3d-models/floral-island-casual-51b345a5ab5843b3b69bfc45056797f7) by restore50 (https://sketchfab.com/restore50) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

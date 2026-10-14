@@ -1,0 +1,11 @@
+Model Information:
+* title:	Rat (GNM/G3NM)
+* source:	https://sketchfab.com/3d-models/rat-gnmg3nm-2d6d571e56444023ab8e32a8d94a1bed
+* author:	Iskaa1874 (https://sketchfab.com/Iskaa1874)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Rat (GNM/G3NM)" (https://sketchfab.com/3d-models/rat-gnmg3nm-2d6d571e56444023ab8e32a8d94a1bed) by Iskaa1874 (https://sketchfab.com/Iskaa1874) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
