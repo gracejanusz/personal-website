@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import MaskGroup from "@/imports/MaskGroup/index";
 import Portfolio from "./Portfolio";
 import ProjectModal from "./ProjectModal";
-import HelpButton from "./HelpButton";
 import { projectsById, type Project } from "./portfolioData";
 
 // Figma canvas dimensions — design artboard sits at left:-351
@@ -189,8 +188,6 @@ export default function App() {
       <Portfolio />
 
       {active && <ProjectModal project={active} onClose={() => setActive(null)} />}
-
-      <HelpButton />
 
       <style>{`
         @keyframes scrollCue {

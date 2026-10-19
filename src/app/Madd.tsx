@@ -8,6 +8,7 @@ import { type Chapter, chapters, lineByQuery } from "./maddStory";
 import { getAudio, playSound } from "./maddSound";
 import MaddIntro from "./MaddIntro";
 import MaddEnding from "./MaddEnding";
+import HelpButton from "./HelpButton";
 import { CLEAR_AT, fieldValue, fields, summary } from "./maddProfile";
 import MaddRadio from "./MaddRadio";
 import MaddRats, { type RatRun } from "./MaddRats";
@@ -193,6 +194,7 @@ export default function Madd() {
   return (
     <div className="min-h-screen bg-black py-6 font-mono text-white">
       {!introDone && <MaddIntro onEnter={() => setIntroDone(true)} />}
+      <HelpButton />
       {/* Scrolling search log behind him */}
       <table className="w-full border-collapse text-left text-sm sm:text-base">
         <tbody>
