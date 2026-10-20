@@ -12,6 +12,14 @@ type TimelineProject = {
 
 const timeline: TimelineProject[] = [
   {
+    date: "Oct 2026",
+    title: "MADD",
+    description:
+      "Designed and built for my MADD Design and Practices class at the University of Chicago. An interactive 3D piece that pieces together a stranger's life from 355 searches in the leaked 2006 AOL search logs — click through his queries to uncover his story, sharpen his portrait, and unlock songs on the radio.",
+    tags: ["Three.js", "React", "Interactive", "UChicago"],
+    href: "/madd",
+  },
+  {
     date: "June 2026",
     title: "Grandpa's Recipes",
     description:
@@ -145,8 +153,10 @@ export default function Projects() {
 
                 <a
                   href={project.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  {...(project.href.startsWith("http") && {
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                  })}
                   className="group block border border-black/15 p-5 md:p-6 transition-all duration-300 hover:border-black"
                   style={{ background: "#f5f4f0" }}
                 >
