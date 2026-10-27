@@ -23,18 +23,83 @@ const REVEAL_PX = 28; // extra px a gap must open to fully show the photo
 const LEVELS = 12; // reveal opacity steps (batched into one path each)
 const WEIGHTS = [0.9, 1.1, 1.4, 1.8, 2.4, 3.2];
 
+// A spot inside a photo (fractions of the cropped frame). Clicking a revealed
+// photo swaps the region under the click (grown out to the image's own
+// edges) for the photo its nearest spot opens; clicking that region again
+// goes a level deeper.
+type Spot = { x: number; y: number; w: number; h: number; label: string; open: number };
+
 // Each photo with a source crop (fractions) to trim screenshot chrome.
-const PHOTOS = [
-  { src: quiltSrc, crop: { x: 0, y: 0, w: 1, h: 1 } },
-  { src: streaksSrc, crop: { x: 0, y: 0.075, w: 1, h: 0.88 } },
-  { src: greenSrc, crop: { x: 0, y: 0, w: 1, h: 1 } },
-  { src: terminalSrc, crop: { x: 0, y: 0, w: 1, h: 1 } },
-  { src: bytesSrc, crop: { x: 0, y: 0, w: 1, h: 1 } },
-  { src: lobsterSrc, crop: { x: 0, y: 0, w: 0.98, h: 1 } },
-  { src: bandsSrc, crop: { x: 0, y: 0.016, w: 1, h: 0.984 } },
-  { src: drawingSrc, crop: { x: 0, y: 0, w: 1, h: 1 } },
-  { src: stretchedSrc, crop: { x: 0, y: 0.016, w: 1, h: 0.984 } },
-  { src: collageSrc, crop: { x: 0, y: 0.016, w: 1, h: 0.984 } },
+const PHOTOS: { src: string; crop: { x: number; y: number; w: number; h: number }; spots: Spot[] }[] = [
+  // 0 quilt
+  {
+    src: quiltSrc,
+    crop: { x: 0, y: 0, w: 1, h: 1 },
+    spots: [
+      { x: 0.44, y: 0.45, w: 0.26, h: 0.22, label: "the glitch underneath", open: 2 },
+      { x: 0.5, y: 0, w: 0.32, h: 0.24, label: "a green patch", open: 5 },
+    ],
+  },
+  // 1 streaks
+  {
+    src: streaksSrc,
+    crop: { x: 0, y: 0.075, w: 1, h: 0.88 },
+    spots: [{ x: 0.74, y: 0.62, w: 0.09, h: 0.2, label: "where the cursor was", open: 3 }],
+  },
+  // 2 green
+  {
+    src: greenSrc,
+    crop: { x: 0, y: 0, w: 1, h: 1 },
+    spots: [{ x: 0.55, y: 0.64, w: 0.16, h: 0.09, label: "service", open: 1 }],
+  },
+  // 3 terminal
+  {
+    src: terminalSrc,
+    crop: { x: 0, y: 0, w: 1, h: 1 },
+    spots: [
+      { x: 0.58, y: 0.42, w: 0.12, h: 0.55, label: "the colour presets", open: 6 },
+      { x: 0.04, y: 0.4, w: 0.26, h: 0.56, label: "what the terminal printed", open: 4 },
+    ],
+  },
+  // 4 bytes
+  {
+    src: bytesSrc,
+    crop: { x: 0, y: 0, w: 1, h: 1 },
+    spots: [{ x: 0, y: 0.04, w: 0.32, h: 0.09, label: "decoded", open: 2 }],
+  },
+  // 5 lobster
+  {
+    src: lobsterSrc,
+    crop: { x: 0, y: 0, w: 0.98, h: 1 },
+    spots: [{ x: 0.18, y: 0.1, w: 0.48, h: 0.3, label: "the face", open: 7 }],
+  },
+  // 6 bands
+  {
+    src: bandsSrc,
+    crop: { x: 0, y: 0.016, w: 1, h: 0.984 },
+    spots: [{ x: 0.62, y: 0, w: 0.1, h: 1, label: "pull this one", open: 8 }],
+  },
+  // 7 drawing
+  {
+    src: drawingSrc,
+    crop: { x: 0, y: 0, w: 1, h: 1 },
+    spots: [{ x: 0.4, y: 0, w: 0.2, h: 1, label: "drawn into colour", open: 6 }],
+  },
+  // 8 stretched
+  {
+    src: stretchedSrc,
+    crop: { x: 0, y: 0.016, w: 1, h: 0.984 },
+    spots: [{ x: 0.2, y: 0.28, w: 0.28, h: 0.66, label: "what was behind", open: 9 }],
+  },
+  // 9 collage
+  {
+    src: collageSrc,
+    crop: { x: 0, y: 0.016, w: 1, h: 0.984 },
+    spots: [
+      { x: 0.56, y: 0, w: 0.36, h: 0.9, label: "the quilt", open: 0 },
+      { x: 0.2, y: 0.15, w: 0.36, h: 0.75, label: "the terminal", open: 3 },
+    ],
+  },
 ];
 
 function rng(seed: number) {
@@ -131,6 +196,24 @@ function buildLayout(seed: number) {
   return { rows, wLine, aLine, press, hue, sat, lit, photo };
 }
 
+const FADE_MS = 420; // crossfade when a region swaps photos
+const BOX = 220; // px, regions never grow past this square around the click
+const MIN_AREA = 1600; // px², loosen the colour match until a region is at least this big
+const TOLS = [14, 22, 32, 46, 64, 90]; // colour distances tried, tightest first
+const ZOOM = 1.8; // each level deeper zooms in this much more around the click
+// a swapped region: the gap it was clicked in, its outline as an alpha mask
+// over a box, the photo inside, and that photo drawn into the outline
+// (redrawn on resize)
+type Patch = {
+  gap: number;
+  x: number; y: number; w: number; h: number;
+  alpha: Uint8Array;
+  mask: HTMLCanvasElement;
+  img: HTMLCanvasElement;
+  k: number; d: number; fx: number; fy: number;
+  at: number;
+};
+
 export default function Strands() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -151,6 +234,9 @@ export default function Strands() {
     let curS = layout.sat.slice();
     let curL = layout.lit.slice();
     let photo = layout.photo.slice();
+    // swapped regions, later ones on top
+    const patches: Patch[] = [];
+    let fadeAnim = 0;
 
     const imgs = PHOTOS.map((p) => {
       const im = new Image();
@@ -160,6 +246,8 @@ export default function Strands() {
     });
     // one offscreen layer per photo: reveal mask, then photo composited into it
     const layers = PHOTOS.map(() => document.createElement("canvas"));
+    // swapped regions, each clipped to the gap it belongs to
+    const tileLayer = document.createElement("canvas");
 
     let W = 0;
     let H = 0;
@@ -172,10 +260,11 @@ export default function Strands() {
       H = cv.clientHeight;
       cv.width = Math.round(W * dpr);
       cv.height = Math.round(H * dpr);
-      for (const l of layers) {
+      for (const l of [...layers, tileLayer]) {
         l.width = cv.width;
         l.height = cv.height;
       }
+      for (const pa of patches) paint(pa);
       draw();
     }
 
@@ -188,6 +277,69 @@ export default function Strands() {
       const dw = sw * s;
       const dh = sh * s;
       c.drawImage(im, im.naturalWidth * crop.x, im.naturalHeight * crop.y, sw, sh, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    }
+
+    // photo k zoomed ZOOM^d around (fx, fy), as the cover image is everywhere else
+    function drawZoomed(c: CanvasRenderingContext2D, k: number, d: number, fx: number, fy: number) {
+      const z = ZOOM ** d;
+      c.translate(fx, fy);
+      c.scale(z, z);
+      c.translate(-fx, -fy);
+      drawCover(c, k);
+    }
+
+    // fill a patch's outline with its photo
+    function paint(pa: Patch) {
+      const c = pa.img.getContext("2d")!;
+      pa.img.width = Math.round(pa.w * dpr);
+      pa.img.height = Math.round(pa.h * dpr);
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      c.drawImage(pa.mask, 0, 0, pa.w, pa.h);
+      c.globalCompositeOperation = "source-in";
+      c.imageSmoothingEnabled = pa.d < 2; // deeper levels go blocky
+      c.translate(-pa.x, -pa.y);
+      drawZoomed(c, pa.k, pa.d, pa.fx, pa.fy);
+    }
+
+    // where gap i is pulled open far enough to show its photo
+    function gapPath(i: number) {
+      const dy = H / (R - 1);
+      const path = new Path2D();
+      const a = pos[i];
+      const b = pos[i + 1];
+      for (let j = 0; j < R - 1; j++) {
+        const open = (b[j] - a[j] - (rest[i + 1][j] - rest[i][j])) * W;
+        if (open <= REVEAL_PX * 0.3) continue;
+        path.moveTo(a[j] * W, j * dy);
+        path.lineTo(b[j] * W, j * dy);
+        path.lineTo(b[j + 1] * W, (j + 1) * dy + 0.5);
+        path.lineTo(a[j + 1] * W, (j + 1) * dy + 0.5);
+        path.closePath();
+      }
+      return path;
+    }
+
+    function drawTiles() {
+      // a region goes once its gap no longer shows where it was clicked,
+      // e.g. a neighbouring gap has been stretched over it
+      for (let n = patches.length - 1; n >= 0; n--)
+        if (gapAt(patches[n].fx, patches[n].fy) !== patches[n].gap) patches.splice(n, 1);
+      const t = tileLayer.getContext("2d")!;
+      t.setTransform(1, 0, 0, 1, 0, 0);
+      t.clearRect(0, 0, tileLayer.width, tileLayer.height);
+      if (!patches.length) return false;
+      t.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const now = performance.now();
+      const clips = new Map<number, Path2D>();
+      for (const pa of patches) {
+        if (!clips.has(pa.gap)) clips.set(pa.gap, gapPath(pa.gap));
+        t.save();
+        t.clip(clips.get(pa.gap)!);
+        t.globalAlpha = Math.min(1, (now - pa.at) / FADE_MS);
+        t.drawImage(pa.img, pa.x, pa.y, pa.w, pa.h);
+        t.restore();
+      }
+      return true;
     }
 
     function drawReveals() {
@@ -267,6 +419,7 @@ export default function Strands() {
       drawReveals();
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       for (const l of layers) ctx.drawImage(l, 0, 0);
+      if (drawTiles()) ctx.drawImage(tileLayer, 0, 0);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       // ink on top
@@ -318,6 +471,124 @@ export default function Strands() {
       curS = to.sat.slice();
       curL = to.lit.slice();
       photo = to.photo.slice();
+      patches.length = 0;
+    }
+
+    // the region of what's on screen around (px, py): flood fill out from the
+    // click through similar colours, loosening the match until it's big enough
+    function regionAt(px: number, py: number) {
+      const w = Math.min(BOX, Math.floor(W));
+      const h = Math.min(BOX, Math.floor(H));
+      const x = Math.round(Math.max(0, Math.min(W - w, px - w / 2)));
+      const y = Math.round(Math.max(0, Math.min(H - h, py - h / 2)));
+      const work = document.createElement("canvas");
+      work.width = w;
+      work.height = h;
+      const wc = work.getContext("2d", { willReadFrequently: true })!;
+      wc.drawImage(cv, x * dpr, y * dpr, w * dpr, h * dpr, 0, 0, w, h);
+      const px0 = wc.getImageData(0, 0, w, h).data;
+      const seed = Math.min(h - 1, Math.round(py - y)) * w + Math.min(w - 1, Math.round(px - x));
+      const sr = px0[seed * 4];
+      const sg = px0[seed * 4 + 1];
+      const sb = px0[seed * 4 + 2];
+      const alpha = new Uint8Array(w * h);
+      const queue = new Int32Array(w * h);
+      for (const tol of TOLS) {
+        alpha.fill(0);
+        const t2 = tol * tol;
+        let head = 0;
+        let tail = 0;
+        queue[tail++] = seed;
+        alpha[seed] = 255;
+        while (head < tail) {
+          const q = queue[head++];
+          const qx = q % w;
+          for (const n of [q - 1, q + 1, q - w, q + w]) {
+            if (n < 0 || n >= w * h || alpha[n] || (n === q - 1 && qx === 0) || (n === q + 1 && qx === w - 1)) continue;
+            const dr = px0[n * 4] - sr;
+            const dg = px0[n * 4 + 1] - sg;
+            const db = px0[n * 4 + 2] - sb;
+            if (dr * dr + dg * dg + db * db > t2) continue;
+            alpha[n] = 255;
+            queue[tail++] = n;
+          }
+        }
+        if (tail >= MIN_AREA) break;
+      }
+      const mask = document.createElement("canvas");
+      mask.width = w;
+      mask.height = h;
+      const md = new ImageData(w, h);
+      for (let i = 0; i < w * h; i++) {
+        md.data[i * 4 + 3] = alpha[i];
+      }
+      mask.getContext("2d")!.putImageData(md, 0, 0);
+      return { x, y, w, h, alpha, mask };
+    }
+
+    // the topmost swapped region under a point
+    function patchAt(px: number, py: number) {
+      for (let n = patches.length - 1; n >= 0; n--) {
+        const pa = patches[n];
+        const u = Math.floor(px - pa.x);
+        const v = Math.floor(py - pa.y);
+        if (u >= 0 && v >= 0 && u < pa.w && v < pa.h && pa.alpha[v * pa.w + u]) return pa;
+      }
+      return null;
+    }
+
+    // swap the region under a point one level deeper, crossfading in place
+    function swapRegion(i: number, px: number, py: number) {
+      const under = patchAt(px, py);
+      const d = under ? under.d : 0;
+      const k = under ? under.k : photo[i];
+      // undo the zoom of what's showing to find where in photo k the click landed
+      const z = ZOOM ** d;
+      const fx = under ? under.fx : px;
+      const fy = under ? under.fy : py;
+      const spot = spotAt(k, fx + (px - fx) / z, fy + (py - fy) / z);
+      if (!spot) return;
+      const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const pa: Patch = {
+        gap: i,
+        ...regionAt(px, py),
+        img: document.createElement("canvas"),
+        k: spot.open,
+        d: d + 1,
+        fx: px,
+        fy: py,
+        at: still ? -Infinity : performance.now(),
+      };
+      paint(pa);
+      patches.push(pa);
+      cancelAnimationFrame(fadeAnim);
+      const step = () => {
+        draw();
+        if (performance.now() - pa.at < FADE_MS) fadeAnim = requestAnimationFrame(step);
+      };
+      step();
+    }
+
+    // the spot of photo k under a point (photos cover the canvas), else the nearest one
+    function spotAt(k: number, px: number, py: number) {
+      const im = imgs[k];
+      const { crop, spots } = PHOTOS[k];
+      const sw = im.naturalWidth * crop.w;
+      const sh = im.naturalHeight * crop.h;
+      const s = Math.max(W / sw, H / sh);
+      const u = (px - (W - sw * s) / 2) / (sw * s);
+      const v = (py - (H - sh * s) / 2) / (sh * s);
+      let best: Spot | null = null;
+      let bd = Infinity;
+      for (const sp of spots) {
+        if (u >= sp.x && u <= sp.x + sp.w && v >= sp.y && v <= sp.y + sp.h) return sp;
+        const d = Math.hypot(u - (sp.x + sp.w / 2), v - (sp.y + sp.h / 2));
+        if (d < bd) {
+          bd = d;
+          best = sp;
+        }
+      }
+      return best;
     }
 
     function newPattern() {
@@ -399,6 +670,19 @@ export default function Strands() {
       return best < 0 ? null : { i: best, r: j };
     }
 
+    // the gap whose photo is showing at a point, if it's pulled open enough
+    function gapAt(px: number, py: number) {
+      const j = Math.max(0, Math.min(R - 1, Math.round((py / H) * (R - 1))));
+      for (let i = 0; i < B; i++) {
+        const a = pos[i][j] * W;
+        const b = pos[i + 1][j] * W;
+        if (px < a || px >= b) continue;
+        const open = (pos[i + 1][j] - pos[i][j] - (rest[i + 1][j] - rest[i][j])) * W;
+        return open >= REVEAL_PX * 0.6 && imgs[photo[i]].naturalWidth ? i : -1;
+      }
+      return -1;
+    }
+
     function apply(D: number) {
       if (!drag) return;
       const gap = MIN_GAP / Math.max(W, 1);
@@ -411,9 +695,13 @@ export default function Strands() {
       }
     }
 
+    let downAt: { x: number; y: number } | null = null;
+    const CLICK_PX = 5;
+
     function onDown(e: PointerEvent) {
       cv.focus({ preventScroll: true });
       const p = local(e);
+      downAt = p;
       const h = find(p.x, p.y);
       if (!h) return;
       cancelAnimationFrame(anim);
@@ -433,19 +721,26 @@ export default function Strands() {
       }
       const h = find(p.x, p.y);
       const a = h ? h.i : -1;
+      cv.style.cursor = gapAt(p.x, p.y) >= 0 ? "pointer" : a >= 0 ? "grab" : "default";
       if (a !== active) {
         active = a;
-        cv.style.cursor = a >= 0 ? "grab" : "default";
         draw();
       }
     }
     function onEnd(e: PointerEvent) {
+      const p = local(e);
+      // a press that barely moved on a revealed photo swaps the region under it
+      const tap = downAt && Math.hypot(p.x - downAt.x, p.y - downAt.y) < CLICK_PX;
+      downAt = null;
+      if (tap) {
+        const i = gapAt(p.x, p.y);
+        if (i >= 0) swapRegion(i, p.x, p.y);
+      }
       if (!drag) return;
       drag = null;
-      const p = local(e);
       const h = find(p.x, p.y);
       active = h ? h.i : -1;
-      cv.style.cursor = active >= 0 ? "grab" : "default";
+      cv.style.cursor = gapAt(p.x, p.y) >= 0 ? "pointer" : active >= 0 ? "grab" : "default";
       draw();
     }
     function onLeave() {
@@ -479,6 +774,7 @@ export default function Strands() {
 
     return () => {
       cancelAnimationFrame(anim);
+      cancelAnimationFrame(fadeAnim);
       ro.disconnect();
       cv.removeEventListener("pointerdown", onDown);
       cv.removeEventListener("pointermove", onMove);
@@ -496,7 +792,7 @@ export default function Strands() {
       <canvas
         ref={canvasRef}
         tabIndex={0}
-        aria-label="Wavy vertical lines with colored bands between them. Drag a line sideways to open the gaps and reveal the photos behind. Press S for a new pattern."
+        aria-label="Wavy vertical lines with colored bands between them. Drag a line sideways to open the gaps and reveal the photos behind; click a photo to swap the shape under the pointer for a piece of another, deeper each click. Press S for a new pattern."
         style={{
           width: "100%",
           height: "max(100vh, 640px)",
