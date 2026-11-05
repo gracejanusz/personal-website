@@ -20,6 +20,14 @@ const timeline: TimelineProject[] = [
     href: "/madd",
   },
   {
+    date: "Aug 2026",
+    title: "This site!",
+    description:
+      "My personal website — the portfolio, project timeline, and photo archive you're looking at now. The source is on GitHub.",
+    tags: ["React", "Vite", "Tailwind", "Three.js"],
+    href: "https://github.com/gracejanusz/personal-website",
+  },
+  {
     date: "June 2026",
     title: "Grandpa's Recipes",
     description:
@@ -119,9 +127,6 @@ export default function Projects() {
         </div>
 
         <div className="px-4 md:px-8 pb-8 pt-4 border-t border-black/10">
-          <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-black/35 mb-3">
-            Timeline — {String(timeline.length).padStart(2, "0")} entries
-          </p>
           <h1
             className="leading-none text-black"
             style={{
@@ -132,13 +137,6 @@ export default function Projects() {
           >
             Projects
           </h1>
-          <p
-            className="mt-4 max-w-xl text-black/55 leading-relaxed"
-            style={{ fontFamily: "'Instrument Serif', serif", fontSize: "1.15rem" }}
-          >
-            A chronological record of builds — from class projects and school tools
-            to ML experiments, web apps, and product work.
-          </p>
         </div>
       </header>
 
@@ -187,17 +185,6 @@ export default function Projects() {
                   >
                     {project.description}
                   </p>
-
-                  <div className="flex flex-wrap gap-1.5 mt-4">
-                    {project.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[10px] font-mono uppercase tracking-widest border border-black/20 px-1.5 py-0.5 text-black/50"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
                 </a>
               </li>
             ))}
@@ -216,9 +203,6 @@ export default function Projects() {
             }}
           >
             Grace Janusz
-          </p>
-          <p className="font-mono text-[10px] uppercase tracking-widest text-black/40 mt-1">
-            Project timeline
           </p>
         </div>
         <Link

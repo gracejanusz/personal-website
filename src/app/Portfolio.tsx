@@ -95,30 +95,6 @@ function ProjectCard({
             <ArrowUpRight className="size-5 text-black/40 group-hover:text-black" />
           </div>
         </div>
-
-        <div className="flex flex-wrap gap-1.5 mt-3">
-          {project.tags.map((tag) =>
-            tag.href ? (
-              <a
-                key={tag.label}
-                href={tag.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="text-[10px] font-mono uppercase tracking-widest border border-black/20 px-1.5 py-0.5 text-black/50 hover:border-black hover:text-black transition-colors"
-              >
-                {tag.label}
-              </a>
-            ) : (
-              <span
-                key={tag.label}
-                className="text-[10px] font-mono uppercase tracking-widest border border-black/20 px-1.5 py-0.5 text-black/50"
-              >
-                {tag.label}
-              </span>
-            ),
-          )}
-        </div>
       </div>
     </button>
   );
@@ -172,15 +148,7 @@ export default function Portfolio() {
         <div className="absolute top-1/2 left-0 right-0 h-px bg-black/5" />
       </div>
 
-      <div className="px-4 md:px-8 pt-10 pb-4 flex items-center gap-4">
-        <div className="h-px flex-1 bg-black/10" />
-        <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-black/40">
-          Selected Work
-        </span>
-        <div className="h-px flex-1 bg-black/10" />
-      </div>
-
-      <main className="px-4 md:px-8 pb-16">
+      <main className="px-4 md:px-8 pt-10 pb-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           {projects.map((project) => (
             <ProjectCard
@@ -193,7 +161,7 @@ export default function Portfolio() {
       </main>
 
       <footer className="border-t border-black/10 px-4 md:px-8 py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
+        <div className="flex items-baseline gap-3 flex-wrap">
           <p
             className="text-black leading-none"
             style={{
@@ -204,9 +172,12 @@ export default function Portfolio() {
           >
             Grace Janusz
           </p>
-          <p className="font-mono text-[10px] uppercase tracking-widest text-black/40 mt-1">
-            WebOps · Projects · Ventures · Design · Music · Photos
-          </p>
+          <Link
+            to="/press"
+            className="font-mono text-[10px] tracking-widest text-black/40 hover:text-black transition-colors"
+          >
+            oh you want more...
+          </Link>
         </div>
         <div className="flex flex-wrap gap-4 md:gap-6">
           {["WEB OPS / IT", "ENTREPRENEURSHIP", "WEB DESIGN", "MUSIC"].map((label) => (

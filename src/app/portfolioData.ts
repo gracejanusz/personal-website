@@ -57,12 +57,7 @@ export const projects: Project[] = [
     images: [imgProjectsPrimary, imgHandsInDashboard, imgHandsInLesson],
     description:
       "A chronological record of builds — Craps, crypto modelling, ASL Learning WebApp, MyGrotonApp, ZebraSales, and data structures work.",
-    tags: [
-      { label: "Timeline" },
-      { label: "ML" },
-      { label: "Web" },
-      { label: "iOS" },
-    ],
+    tags: [],
     href: "/projects",
   },
   {

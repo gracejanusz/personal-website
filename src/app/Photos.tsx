@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, X, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -132,11 +132,6 @@ export default function Photos() {
     window.scrollTo(0, 0);
   }, []);
 
-  const countLabel = useMemo(
-    () => `${String(photos.length).padStart(2, "0")} frames`,
-    [],
-  );
-
   return (
     <div className="relative min-h-screen" style={{ background: "#fafaf8" }}>
       <NoiseOverlay />
@@ -162,9 +157,6 @@ export default function Photos() {
         </div>
 
         <div className="px-4 md:px-8 pb-8 pt-4 border-t border-black/10">
-          <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-black/35 mb-3">
-            Archive — {countLabel}
-          </p>
           <h1
             className="leading-none text-black"
             style={{
@@ -175,13 +167,6 @@ export default function Photos() {
           >
             Photos
           </h1>
-          <p
-            className="mt-4 max-w-xl text-black/55 leading-relaxed"
-            style={{ fontFamily: "'Instrument Serif', serif", fontSize: "1.15rem" }}
-          >
-            Photographic documentation and visual archive — field captures,
-            digitised and preserved as part of an ongoing personal practice.
-          </p>
         </div>
       </header>
 
@@ -220,9 +205,6 @@ export default function Photos() {
             }}
           >
             Grace Janusz
-          </p>
-          <p className="font-mono text-[10px] uppercase tracking-widest text-black/40 mt-1">
-            Photographic archive
           </p>
         </div>
         <Link
