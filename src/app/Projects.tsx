@@ -1,6 +1,18 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import catHanging from "@/app/cats/hanging.png";
+import catSpiky from "@/app/cats/spiky.png";
+import catGuitar from "@/app/cats/guitar.png";
+import catLoaf from "@/app/cats/loaf.png";
+import catLongLeft from "@/app/cats/long-left.png";
+import catArched from "@/app/cats/arched.png";
+import catLongRight from "@/app/cats/long-right.png";
+import catSitting from "@/app/cats/sitting.png";
+import catUpsideDown from "@/app/cats/upside-down.png";
+import catSmallSitting from "@/app/cats/small-sitting.png";
+import catStretching from "@/app/cats/stretching.png";
+import madeBy from "@/app/cats/made-by.png";
 
 type TimelineProject = {
   date: string;
@@ -84,6 +96,54 @@ const timeline: TimelineProject[] = [
   },
 ];
 
+// Hand-drawn cats from Grace's sketch. Widths are ~0.4x the 300dpi source crops.
+function Cat({ src, width, className = "", style }: { src: string; width: number; className?: string; style?: React.CSSProperties }) {
+  return (
+    <img
+      src={src}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
+      width={width}
+      className={`select-none ${className}`}
+      style={{ width, height: "auto", ...style }}
+    />
+  );
+}
+
+function CatGutters() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 hidden min-[1100px]:block">
+      <div
+        className="absolute top-12 flex flex-col items-end gap-6 origin-top-right scale-[0.8] xl:scale-100"
+        style={{ right: "calc(50% + 384px + 8px)", width: 180 }}
+      >
+        <Cat src={catHanging} width={109} />
+        <Cat src={catSpiky} width={70} className="self-start" style={{ marginTop: -140 }} />
+        <Cat src={catGuitar} width={143} className="self-start mt-4" />
+        <Cat src={catLoaf} width={150} className="self-start mt-10" />
+        <Cat src={catLongLeft} width={142} className="self-start -mt-2" />
+      </div>
+
+      <div
+        className="absolute top-8 flex flex-col items-start gap-8 origin-top-left scale-[0.8] xl:scale-100"
+        style={{ left: "calc(50% + 384px + 8px)", width: 180 }}
+      >
+        <Cat src={catArched} width={165} />
+        <Cat src={catLongRight} width={158} />
+        <div className="flex items-start gap-3">
+          <Cat src={catSitting} width={74} className="mt-2" />
+          <Cat src={catUpsideDown} width={94} />
+        </div>
+        <div className="flex items-start gap-2 mt-4">
+          <Cat src={catSmallSitting} width={81} />
+          <Cat src={catStretching} width={102} className="mt-10" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function NoiseOverlay() {
   return (
     <div
@@ -140,7 +200,9 @@ export default function Projects() {
         </div>
       </header>
 
-      <main className="px-4 md:px-8 py-10 md:py-14 max-w-3xl mx-auto w-full">
+      <div className="relative">
+      <CatGutters />
+      <main className="relative px-4 md:px-8 py-10 md:py-14 max-w-3xl mx-auto w-full">
         <div className="relative">
           <div className="absolute left-[5px] top-2 bottom-2 w-px bg-black/15" />
 
@@ -191,6 +253,7 @@ export default function Projects() {
           </ol>
         </div>
       </main>
+      </div>
 
       <footer className="border-t border-black/10 px-4 md:px-8 py-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
@@ -204,6 +267,12 @@ export default function Projects() {
           >
             Grace Janusz
           </p>
+          <img
+            src={madeBy}
+            alt="made by =(cat)="
+            draggable={false}
+            className="mt-3 h-7 w-auto select-none opacity-80"
+          />
         </div>
         <Link
           to="/"
