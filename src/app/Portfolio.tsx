@@ -179,28 +179,6 @@ export default function Portfolio() {
             oh you want more...
           </Link>
         </div>
-        <div className="flex flex-wrap gap-4 md:gap-6">
-          {["WEB OPS / IT", "ENTREPRENEURSHIP", "WEB DESIGN", "MUSIC"].map((label) => (
-            <span
-              key={label}
-              className="font-mono text-[9px] uppercase tracking-widest text-black/30"
-            >
-              {label}
-            </span>
-          ))}
-          <Link
-            to="/projects"
-            className="font-mono text-[9px] uppercase tracking-widest text-black/30 hover:text-black transition-colors"
-          >
-            PROJECTS
-          </Link>
-          <Link
-            to="/photos"
-            className="font-mono text-[9px] uppercase tracking-widest text-black/30 hover:text-black transition-colors"
-          >
-            PHOTOS
-          </Link>
-        </div>
       </footer>
 
       {active && <ProjectModal project={active} onClose={() => setActive(null)} />}

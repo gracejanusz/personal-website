@@ -13,6 +13,29 @@ import catUpsideDown from "@/app/cats/upside-down.png";
 import catSmallSitting from "@/app/cats/small-sitting.png";
 import catStretching from "@/app/cats/stretching.png";
 import madeBy from "@/app/cats/made-by.png";
+import drawBat from "@/app/drawings/bat.png";
+import drawBear from "@/app/drawings/bear.png";
+import drawBird from "@/app/drawings/bird.png";
+import drawBunny from "@/app/drawings/bunny.png";
+import drawCarrot from "@/app/drawings/carrot.png";
+import drawCatCurled from "@/app/drawings/cat-curled.png";
+import drawCatLeaping from "@/app/drawings/cat-leaping.png";
+import drawCatLying from "@/app/drawings/cat-lying.png";
+import drawCatTall from "@/app/drawings/cat-tall.png";
+import drawDog from "@/app/drawings/dog.png";
+import drawFox from "@/app/drawings/fox.png";
+import drawGiraffe from "@/app/drawings/giraffe.png";
+import drawHeart from "@/app/drawings/heart.png";
+import drawMoon from "@/app/drawings/moon.png";
+import drawPartyCat from "@/app/drawings/party-cat.png";
+import drawPig from "@/app/drawings/pig.png";
+import drawRadio from "@/app/drawings/radio.png";
+import drawSnail from "@/app/drawings/snail.png";
+import drawSpiral from "@/app/drawings/spiral.png";
+import drawSquiggle from "@/app/drawings/squiggle.png";
+import drawStar from "@/app/drawings/star.png";
+import drawTopHatBird from "@/app/drawings/top-hat-bird.png";
+import drawWorm from "@/app/drawings/worm.png";
 
 type TimelineProject = {
   date: string;
@@ -23,6 +46,14 @@ type TimelineProject = {
 };
 
 const timeline: TimelineProject[] = [
+  {
+    date: "Nov 2026",
+    title: "Strands",
+    description:
+      "An interactive generative piece: wavy lines with colored bands between them. Drag a line sideways to open the gaps and reveal the photos hidden behind, then click a photo to dive deeper into another. Press S for a new pattern, and turn on the music for chimes as you play.",
+    tags: ["Generative", "Canvas", "Interactive", "Web Audio"],
+    href: "/strands",
+  },
   {
     date: "Oct 2026",
     title: "MADD",
@@ -113,7 +144,7 @@ function Cat({ src, width, className = "", style }: { src: string; width: number
 
 function CatGutters() {
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 hidden min-[1100px]:block">
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden hidden min-[1100px]:block">
       <div
         className="absolute top-12 flex flex-col items-end gap-6 origin-top-right scale-[0.8] xl:scale-100"
         style={{ right: "calc(50% + 384px + 8px)", width: 180 }}
@@ -123,6 +154,19 @@ function CatGutters() {
         <Cat src={catGuitar} width={143} className="self-start mt-4" />
         <Cat src={catLoaf} width={150} className="self-start mt-10" />
         <Cat src={catLongLeft} width={142} className="self-start -mt-2" />
+        <Cat src={drawRadio} width={167} className="mt-8" />
+        <div className="flex items-end gap-4 self-start">
+          <Cat src={drawTopHatBird} width={89} />
+          <Cat src={drawStar} width={64} className="mb-24" />
+        </div>
+        <Cat src={drawBat} width={180} className="mt-4" />
+        <Cat src={drawCatCurled} width={168} className="self-start mt-6" />
+        <Cat src={drawSnail} width={172} className="mt-4" />
+        <div className="flex items-start gap-3 self-start mt-4">
+          <Cat src={drawFox} width={117} />
+          <Cat src={drawHeart} width={38} className="mt-16" />
+        </div>
+        <Cat src={drawDog} width={180} className="mt-8" />
       </div>
 
       <div
@@ -138,6 +182,34 @@ function CatGutters() {
         <div className="flex items-start gap-2 mt-4">
           <Cat src={catSmallSitting} width={81} />
           <Cat src={catStretching} width={102} className="mt-10" />
+        </div>
+        <div className="flex flex-col items-start gap-5 mt-4">
+          <div className="flex items-start gap-4">
+            <Cat src={drawBear} width={100} />
+            <Cat src={drawMoon} width={54} className="mt-2" />
+          </div>
+          <Cat src={drawCatLeaping} width={150} />
+          <div className="flex items-end gap-3">
+            <Cat src={drawCatTall} width={128} />
+            <Cat src={drawSquiggle} width={40} className="mb-16" />
+          </div>
+          <div className="flex items-end gap-5">
+            <Cat src={drawBird} width={90} />
+            <Cat src={drawCarrot} width={58} />
+          </div>
+          <div className="flex items-start gap-2">
+            <Cat src={drawGiraffe} width={120} />
+            <Cat src={drawSpiral} width={58} className="mt-4" />
+          </div>
+          <div className="flex items-end gap-2">
+            <Cat src={drawPartyCat} width={118} />
+            <Cat src={drawPig} width={70} className="mb-2" />
+          </div>
+          <div className="flex items-end gap-3">
+            <Cat src={drawBunny} width={95} />
+            <Cat src={drawWorm} width={78} />
+          </div>
+          <Cat src={drawCatLying} width={130} />
         </div>
       </div>
     </div>
